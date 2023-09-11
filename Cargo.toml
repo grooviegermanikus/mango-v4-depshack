@@ -1,0 +1,17 @@
+# use 1.70-x86_64
+
+[package]
+name = "mango-v4-depshack"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anchor-client = { git = "https://github.com/coral-xyz/anchor.git", rev = "2af9cc669", version = "0.28.0" }
+anchor-lang = { git = "https://github.com/coral-xyz/anchor.git", rev = "2af9cc669", version = "0.28.0" }
+anchor-spl = { git = "https://github.com/coral-xyz/anchor.git", rev = "2af9cc669", version = "0.28.0" }
+fixed = { git = "https://gitlab.com/ckamm/fixed.git", branch = "v1.11.0-mango" }
+
+borsh = { version = "0.10.3", features = ["const-generics"] }
+bytemuck = { version = "^1.7.2", features = ["min_const_generics"] }
