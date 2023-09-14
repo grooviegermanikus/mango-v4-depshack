@@ -11,7 +11,15 @@ edition = "2021"
 anchor-client = { git = "https://github.com/coral-xyz/anchor.git", rev = "2af9cc669", version = "0.28.0" }
 anchor-lang = { git = "https://github.com/coral-xyz/anchor.git", rev = "2af9cc669", version = "0.28.0" }
 anchor-spl = { git = "https://github.com/coral-xyz/anchor.git", rev = "2af9cc669", version = "0.28.0" }
-fixed = { git = "https://gitlab.com/ckamm/fixed.git", branch = "v1.11.0-mango" }
-
+# use ckamm commit 2363acc4 (v1.23.0-mango -1)
+#fixed = { git = "https://gitlab.com/ckamm/fixed.git", rev = "2363acc4", features = ["serde", "borsh"] }
+fixed = { git = "https://github.com/blockworks-foundation/fixed.git", branch = "v1.11.0-borsh0_10-mango", features = ["serde", "borsh"] }
 borsh = { version = "0.10.3", features = ["const-generics"] }
 bytemuck = { version = "^1.7.2", features = ["min_const_generics"] }
+
+
+# commit 4a6daab (anchor 0.28)
+#openbook-v2 = { path = "/Users/stefan/mango/code/openbook-v2/programs/openbook-v2", default-features=false, features = ["no-entrypoint"] }
+openbook-v2 = { git = "https://github.com/openbook-dex/openbook-v2.git", rev = "4a6daab", default-features=false, features = ["no-entrypoint"] }
+raydium-amm-v3 = { git = "https://github.com/raydium-io/raydium-clmm.git", rev = "bcee27a" }
+
