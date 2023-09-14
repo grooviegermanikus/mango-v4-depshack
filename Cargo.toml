@@ -1,5 +1,7 @@
 # use 1.70-x86_64
 
+[features]
+
 [package]
 name = "mango-v4-depshack"
 version = "0.1.0"
@@ -22,4 +24,5 @@ bytemuck = { version = "^1.7.2", features = ["min_const_generics"] }
 #openbook-v2 = { path = "/Users/stefan/mango/code/openbook-v2/programs/openbook-v2", default-features=false, features = ["no-entrypoint"] }
 openbook-v2 = { git = "https://github.com/openbook-dex/openbook-v2.git", rev = "4a6daab", default-features=false, features = ["no-entrypoint"] }
 raydium-amm-v3 = { git = "https://github.com/raydium-io/raydium-clmm.git", rev = "bcee27a" }
+mpl-utils = { version = "0.3.2", features = ["spl-token"] }
 
