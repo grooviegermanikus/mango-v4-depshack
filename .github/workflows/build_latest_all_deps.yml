@@ -1,0 +1,47 @@
+on:
+  push:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Mango v4 'update-solana-1-16-anchor-28-mango-0.19' branch
+        uses: actions/checkout@v4
+        with:
+          repository: 'https://github.com/blockworks-foundation/mango-v4.git'
+#          ref: 'dev'
+          ref: 'update-solana-1-16-anchor-28-mango-0.19'
+          path: 'mango-v4'
+
+      - name: Checkout Openbook v2 master branch
+        uses: actions/checkout@v4
+        with:
+          repository: 'https://github.com/openbook-dex/openbook-v2.git'
+          ref: 'master'
+          path: 'openbook-v2'
+
+      # The toolchain action should definitely be run before the cache action
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          # use toolchain version from rust-toolchain.toml
+          components: rustfmt, clippy
+          cache: true
+          # avoid the default "-D warnings" which thrashes cache
+          rustflags: ""
+
+      - name: Patch Cargo files to point to local checkouts
+        run: |
+          cd mango-v4
+          cat << END_OF_PATCH >> Cargo.toml
+          [patch."https://github.com/openbook-dex/openbook-v2.git"]
+          openbook-v2 = { path = '../openbook-v2/programs/openbook-v2' }
+          END_OF_PATCH
+
+      - name: Build Mango V4 against local Openbook V2
+        run: |
+          cd mango-v4
+          cargo build --locked --all-targets
+
