@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Mango v4 'update-solana-1-16-anchor-28-mango-0.19' branch
         uses: actions/checkout@v4
         with:
-          repository: 'https://github.com/blockworks-foundation/mango-v4.git'
+          repository: 'blockworks-foundation/mango-v4.git'
 #          ref: 'dev'
           ref: 'update-solana-1-16-anchor-28-mango-0.19'
           path: 'mango-v4'
@@ -19,7 +19,7 @@ jobs:
       - name: Checkout Openbook v2 master branch
         uses: actions/checkout@v4
         with:
-          repository: 'https://github.com/openbook-dex/openbook-v2.git'
+          repository: 'openbook-dex/openbook-v2.git'
           ref: 'master'
           path: 'openbook-v2'
 
