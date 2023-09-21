@@ -44,5 +44,5 @@ jobs:
       - name: Build Mango V4 against local Openbook V2
         run: |
           cd mango-v4
-          cargo build --locked --all-targets
+          cargo build --all-targets
 
