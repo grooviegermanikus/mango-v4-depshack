@@ -12,6 +12,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'blockworks-foundation/mango-v4.git'
+          submodules: true
 #          ref: 'dev'
           ref: 'update-solana-1-16-anchor-28-mango-0.19'
           path: 'mango-v4'
@@ -20,13 +21,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'openbook-dex/openbook-v2.git'
+          submodules: true
           ref: 'master'
           path: 'openbook-v2'
 
-      # The toolchain action should definitely be run before the cache action
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          # use toolchain version from rust-toolchain.toml
+          toolchain: 1.70
           components: rustfmt, clippy
           cache: true
           # avoid the default "-D warnings" which thrashes cache
