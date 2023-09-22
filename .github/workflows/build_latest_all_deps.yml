@@ -20,6 +20,14 @@ jobs:
           ref: 'update-solana-1-16-anchor-28-mango-0.19'
           path: 'mango-v4'
 
+      - name: Checkout Mango Feeds 'update-solana-1-16-anchor-28' branch
+        uses: actions/checkout@v4
+        with:
+          repository: 'blockworks-foundation/mango-feeds.git'
+          submodules: true
+          ref: 'update-solana-1-16-anchor-28'
+          path: 'mango-feeds'
+
       - name: Checkout Openbook v2 master branch
         uses: actions/checkout@v4
         with:
@@ -36,7 +44,7 @@ jobs:
           # avoid the default "-D warnings" which thrashes cache
           rustflags: ""
 
-      - name: Patch Cargo files to point to local checkouts
+      - name: Patch mango-v4 Cargo files to point to local checkouts
         run: |
           cd mango-v4
           cat << END_OF_PATCH >> Cargo.toml
@@ -50,3 +58,17 @@ jobs:
           cargo build --all-targets
 #          cargo build-sbf --features enable-gpl
 
+      - name: Patch mango-feeds Cargo files to point to local checkouts
+        run: |
+          cd mango-feeds
+          cat << END_OF_PATCH >> Cargo.toml
+          [patch.crates-io]
+          mango-v4 = { path = '../mango-v4/programs/mango-v4' }
+          mango-v4-client = { path = '../mango-v4/lib/client' }
+          END_OF_PATCH
+
+      - name: Build Mango Feeds against local Mango V4
+        run: |
+          cd mango-feeds
+          cargo build --all-targets
+          cargo test
