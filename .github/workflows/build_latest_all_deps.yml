@@ -61,11 +61,7 @@ jobs:
       - name: Patch mango-feeds Cargo files to point to local checkouts
         run: |
           cd mango-feeds
-          cat << END_OF_PATCH >> Cargo.toml
-          [patch.crates-io]
-          mango-v4 = { path = '../mango-v4/programs/mango-v4' }
-          mango-v4-client = { path = '../mango-v4/lib/client' }
-          END_OF_PATCH
+          sed --in-place '/patch\.crates-io/a mango-v4 = { path = '../mango-v4/programs/mango-v4' }\nmango-v4-client = { path = '../mango-v4/lib/client' }'
 
       - name: Build Mango Feeds against local Mango V4
         run: |
