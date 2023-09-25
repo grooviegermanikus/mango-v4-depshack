@@ -1,0 +1,70 @@
+on:
+  workflow_dispatch:
+  push:
+  schedule:
+    - cron: '50 7,12 * * MON-FRI'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Mango v4 'move-mango-feeds-services' branch
+        uses: actions/checkout@v4
+        with:
+          repository: 'blockworks-foundation/mango-v4.git'
+          submodules: true
+#          ref: 'dev'
+          ref: 'move-mango-feeds-services'
+          path: 'mango-v4'
+
+      - name: Checkout Mango Feeds 'move-mango-feeds-services' branch
+        uses: actions/checkout@v4
+        with:
+          repository: 'blockworks-foundation/mango-feeds.git'
+          submodules: true
+          ref: 'move-mango-feeds-services'
+          path: 'mango-feeds'
+
+      - name: Checkout Openbook v2 master branch
+        uses: actions/checkout@v4
+        with:
+          repository: 'openbook-dex/openbook-v2.git'
+          submodules: true
+          ref: 'master'
+          path: 'openbook-v2'
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: "1.70"
+          components: rustfmt, clippy
+          cache: true
+          # avoid the default "-D warnings" which thrashes cache
+          rustflags: ""
+
+      - name: Patch mango-v4 Cargo files to point to local checkouts
+        run: |
+          cd mango-v4
+          cat << END_OF_PATCH >> Cargo.toml
+          [patch."https://github.com/openbook-dex/openbook-v2.git"]
+          openbook-v2 = { path = '../openbook-v2/programs/openbook-v2' }
+          END_OF_PATCH
+
+      - name: Build Mango V4 against local Openbook V2
+        run: |
+          cd mango-v4
+          cargo build --all-targets
+#          cargo build-sbf --features enable-gpl
+
+      - name: Patch mango-feeds Cargo files to point to local checkouts
+        run: |
+          cd mango-feeds
+          sed --in-place '/patch\.crates-io/a mango-v4 = { path = "../mango-v4/programs/mango-v4" }\nmango-v4-client = { path = "../mango-v4/lib/client" }' Cargo.toml
+
+      - name: Build Mango Feeds against local Mango V4
+        run: |
+          cd mango-feeds
+          cargo build --all-targets
+          cargo test
