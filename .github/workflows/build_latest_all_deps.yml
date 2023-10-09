@@ -11,21 +11,20 @@ jobs:
   test:
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout Mango v4 'update-solana-1-16-anchor-28-mango-0.19' branch
+      - name: Checkout Mango v4 'dev' branch
         uses: actions/checkout@v4
         with:
           repository: 'blockworks-foundation/mango-v4.git'
           submodules: true
-#          ref: 'dev'
-          ref: 'update-solana-1-16-anchor-28-mango-0.19'
+          ref: 'dev'
           path: 'mango-v4'
 
-      - name: Checkout Mango Feeds 'update-solana-1-16-anchor-28' branch
+      - name: Checkout Mango Feeds 'main' branch
         uses: actions/checkout@v4
         with:
           repository: 'blockworks-foundation/mango-feeds.git'
           submodules: true
-          ref: 'update-solana-1-16-anchor-28'
+          ref: 'main'
           path: 'mango-feeds'
 
       - name: Checkout Openbook v2 master branch
