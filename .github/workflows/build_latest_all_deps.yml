@@ -67,7 +67,6 @@ jobs:
         run: |
           cd mango-v4
           cargo build --all-targets
-          cargo build-sbf --features enable-gpl
 
       - name: Patch mango-feeds Cargo files to point to local checkouts
         run: |
@@ -93,6 +92,6 @@ jobs:
 
       - name: Run on-chain test
         run: |
-          cargo build-sbf --features enable-gpl
-          cargo +solana build-sbf --features enable-gpl
+          cargo test-sbf --features enable-gpl
+          cargo +solana test-sbf --features enable-gpl
 
