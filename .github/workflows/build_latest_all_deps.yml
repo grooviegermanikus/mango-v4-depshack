@@ -93,6 +93,7 @@ jobs:
 
       - name: Run on-chain test
         run: |
+          cd mango-v4
           cargo test-sbf --features enable-gpl
           cargo +solana test-sbf --features enable-gpl
 
