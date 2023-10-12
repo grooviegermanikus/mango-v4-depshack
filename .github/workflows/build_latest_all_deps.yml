@@ -44,18 +44,6 @@ jobs:
           # avoid the default "-D warnings" which thrashes cache
           rustflags: ""
 
-      # https://github.com/actions/cache/blob/main/examples.md#rust---cargo
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            mango-v4/target/
-            mango-feeds/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
       - name: Patch mango-v4 Cargo files to point to local checkouts
         run: |
           cd mango-v4
