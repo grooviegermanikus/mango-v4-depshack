@@ -10,7 +10,8 @@ env:
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+#    runs-on: ubuntu-22.04
+    runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
       - name: Checkout Mango v4 'dev' branch
         uses: actions/checkout@v4
@@ -44,6 +45,21 @@ jobs:
           # avoid the default "-D warnings" which thrashes cache
           rustflags: ""
 
+      # https://github.com/actions/cache/blob/main/examples.md#rust---cargo
+      - name: BuildJet Caching
+        uses: buildjet/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            mango-v4/target/
+            mango-feeds/target/
+            openbook-v2/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+
       - name: Patch mango-v4 Cargo files to point to local checkouts
         run: |
           cd mango-v4
@@ -51,11 +67,14 @@ jobs:
           [patch."https://github.com/openbook-dex/openbook-v2.git"]
           openbook-v2 = { path = '../openbook-v2/programs/openbook-v2' }
           END_OF_PATCH
+          
 
-      - name: Build Mango V4 against local Openbook V2
+      - name: Build and test Mango V4 against local Openbook V2
         run: |
           cd mango-v4
           cargo build --all-targets
+          cargo tree > cargo-tree-mango-v4.txt
+          cargo test
 
       - name: Patch mango-feeds Cargo files to point to local checkouts
         run: |
@@ -66,7 +85,14 @@ jobs:
         run: |
           cd mango-feeds
           cargo build --all-targets
+          cargo tree > cargo-tree-mango-feeds.txt
           cargo test
+
+      - name: Build Openbook V2 (master branch)
+        run: |
+          cd openbook-v2
+          cargo build --all-targets
+          cargo tree > cargo-tree-openbook.txt
 
       - name: Install Solana
         run: |
@@ -85,3 +111,33 @@ jobs:
           cargo test-sbf --features enable-gpl
           cargo +solana test-sbf --features enable-gpl
 
+      - name: Update all dependencies (generate-lockfile)
+        run: |
+          (cd mango-v4 && cargo generate-lockfile && cargo tree > ../cargo-tree-updated-mango-v4.txt)
+          (cd mango-feeds && cargo generate-lockfile && cargo tree > ../cargo-tree-updated-mango-feeds.txt)
+          (cd openbook-v2 && cargo generate-lockfile && cargo tree > ../cargo-tree-updated-openbook.txt)
+
+      - name: (after generate-lockfile) Build and test Mango V4 against local Openbook V2
+        run: |
+          cd mango-v4
+          cargo build --all-targets
+          cargo test
+
+      - name: (after generate-lockfile)Build Mango Feeds against local Mango V4
+        run: |
+          cd mango-feeds
+          cargo build --all-targets
+          cargo test
+
+      - name: (after generate-lockfile) Run on-chain test
+        run: |
+          cd mango-v4
+          cargo test-sbf --features enable-gpl
+          cargo +solana test-sbf --features enable-gpl
+
+      - name: Save cargo trees
+        uses: actions/upload-artifact@v3
+        with:
+          name: Cargo Dependency Trees
+          path: |
+            cargo-tree-*.txt
