@@ -100,8 +100,8 @@ jobs:
       - name: Log Rust disk usage
         run: |
           df
-          du -d1ch .
-          du -d1ch ~/.cargo
+          du -hcd1 .
+          du -hcd1 ~/.cargo
 
       - name: Install Solana
         run: |
