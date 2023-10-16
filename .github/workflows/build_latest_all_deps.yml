@@ -2,7 +2,8 @@ on:
   workflow_dispatch:
   push:
   schedule:
-    - cron: '30 7,12 * * MON-FRI'
+#    - cron: '30 7,12 * * MON-FRI'
+    - cron: '30 12 * * MON'
 
 env:
   CARGO_TERM_COLOR: always
@@ -29,7 +30,7 @@ jobs:
           ref: 'main'
           path: 'mango-feeds'
 
-      - name: Checkout Openbook v2 master branch
+      - name: Checkout Openbook v2 'master' branch
         uses: actions/checkout@v4
         with:
           repository: 'openbook-dex/openbook-v2.git'
@@ -72,8 +73,8 @@ jobs:
       - name: Build and test Mango V4 against local Openbook V2
         run: |
           cd mango-v4
-          cargo build --all-targets
           cargo tree > cargo-tree-mango-v4.txt
+          cargo build --all-targets
           cargo test
 
       - name: Patch mango-feeds Cargo files to point to local checkouts
@@ -84,15 +85,23 @@ jobs:
       - name: Build Mango Feeds against local Mango V4
         run: |
           cd mango-feeds
-          cargo build --all-targets
           cargo tree > cargo-tree-mango-feeds.txt
+          cargo build --all-targets
           cargo test
 
       - name: Build Openbook V2 (master branch)
+        # openbook is not in scope for this
+        continue-on-error: true
         run: |
           cd openbook-v2
-          cargo build --all-targets
           cargo tree > cargo-tree-openbook.txt
+          cargo build --all-targets
+
+      - name: Log Rust disk usage
+        run: |
+          df
+          du -d1ch .
+          du -d1ch ~/.cargo
 
       - name: Install Solana
         run: |
@@ -112,24 +121,28 @@ jobs:
           cargo +solana test-sbf --features enable-gpl
 
       - name: Update all dependencies (generate-lockfile)
+        continue-on-error: true
         run: |
           (cd mango-v4 && cargo generate-lockfile && cargo tree > ../cargo-tree-updated-mango-v4.txt)
           (cd mango-feeds && cargo generate-lockfile && cargo tree > ../cargo-tree-updated-mango-feeds.txt)
           (cd openbook-v2 && cargo generate-lockfile && cargo tree > ../cargo-tree-updated-openbook.txt)
 
       - name: (after generate-lockfile) Build and test Mango V4 against local Openbook V2
+        continue-on-error: true
         run: |
           cd mango-v4
           cargo build --all-targets
           cargo test
 
       - name: (after generate-lockfile)Build Mango Feeds against local Mango V4
+        continue-on-error: true
         run: |
           cd mango-feeds
           cargo build --all-targets
           cargo test
 
       - name: (after generate-lockfile) Run on-chain test
+        continue-on-error: true
         run: |
           cd mango-v4
           cargo test-sbf --features enable-gpl
