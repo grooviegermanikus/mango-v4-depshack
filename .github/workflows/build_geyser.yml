@@ -1,0 +1,69 @@
+on:
+  workflow_dispatch:
+  push:
+  schedule:
+#    - cron: '30 7,12 * * MON-FRI'
+    - cron: '30 11 * * MON-FRI'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+#    runs-on: ubuntu-22.04
+    runs-on: buildjet-4vcpu-ubuntu-2204
+    steps:
+      - name: Checkout Yellowstone gRPC
+        uses: actions/checkout@v4
+        with:
+          repository: 'rpcpool/yellowstone-grpc.git'
+          ref: 'master'
+          path: 'yellowstone-grpc'
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: "1.70"
+          components: rustfmt, clippy
+          cache: true
+          # avoid the default "-D warnings" which thrashes cache
+          rustflags: ""
+
+      # https://github.com/actions/cache/blob/main/examples.md#rust---cargo
+      - name: BuildJet Caching
+        uses: buildjet/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            yellowstone-grpc/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Dump Cargo trees
+        run: |
+          (cd yellowstone-grpc/yellowstone-grpc-geyser && cargo tree > ../yellowstone-grpc-geyser.txt)
+
+      - name: Build Mango Feeds against local Mango V4
+        run: |
+          cd yellowstone-grpc/yellowstone-grpc-geyser
+          cargo build --all-targets
+          cargo test
+
+      - name: Update all dependencies (generate-lockfile)
+        run: |
+          (cd yellowstone-grpc/yellowstone-grpc-geyser && cargo generate-lockfile && cargo tree > ../cargo-tree-updated-yellowstone-grpc-geyser.txt)
+
+      - name: (after generate-lockfile) Build and test Yellowstone gRPC
+        run: |
+          cd yellowstone-grpc/yellowstone-grpc-geyser
+          cargo build --all-targets
+          cargo test
+
+      - name: Save cargo trees
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: Cargo Dependency Trees
+          path: |
+            cargo-tree-*.txt
