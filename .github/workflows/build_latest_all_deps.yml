@@ -7,7 +7,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  SOLANA_VERSION: '1.16.14'
+  SOLANA_VERSION: '1.16.17'
 
 jobs:
   test:
@@ -60,6 +60,11 @@ jobs:
             openbook-v2/target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Dump Cargo trees
+        run: |
+          (cd mango-v4 && cargo tree > ../cargo-tree-mango-v4.txt)
+          (cd mango-feeds && cargo tree > ../cargo-tree-mango-feeds.txt)
+          (cd openbook-v2 && cargo tree > ../cargo-tree-openbook.txt)
 
       - name: Patch mango-v4 Cargo files to point to local checkouts
         run: |
@@ -73,7 +78,6 @@ jobs:
       - name: Build and test Mango V4 against local Openbook V2
         run: |
           cd mango-v4
-          cargo tree > cargo-tree-mango-v4.txt
           cargo build --all-targets
           cargo test
 
@@ -85,16 +89,13 @@ jobs:
       - name: Build Mango Feeds against local Mango V4
         run: |
           cd mango-feeds
-          cargo tree > cargo-tree-mango-feeds.txt
           cargo build --all-targets
           cargo test
 
       - name: Build Openbook V2 (master branch)
         # openbook is not in scope for this
-        continue-on-error: true
         run: |
           cd openbook-v2
-          cargo tree > cargo-tree-openbook.txt
           cargo build --all-targets
 
       - name: Log Rust disk usage
@@ -121,34 +122,31 @@ jobs:
           cargo +solana test-sbf --features enable-gpl
 
       - name: Update all dependencies (generate-lockfile)
-        continue-on-error: true
         run: |
           (cd mango-v4 && cargo generate-lockfile && cargo tree > ../cargo-tree-updated-mango-v4.txt)
           (cd mango-feeds && cargo generate-lockfile && cargo tree > ../cargo-tree-updated-mango-feeds.txt)
           (cd openbook-v2 && cargo generate-lockfile && cargo tree > ../cargo-tree-updated-openbook.txt)
 
       - name: (after generate-lockfile) Build and test Mango V4 against local Openbook V2
-        continue-on-error: true
         run: |
           cd mango-v4
           cargo build --all-targets
           cargo test
 
       - name: (after generate-lockfile)Build Mango Feeds against local Mango V4
-        continue-on-error: true
         run: |
           cd mango-feeds
           cargo build --all-targets
           cargo test
 
       - name: (after generate-lockfile) Run on-chain test
-        continue-on-error: true
         run: |
           cd mango-v4
           cargo test-sbf --features enable-gpl
           cargo +solana test-sbf --features enable-gpl
 
       - name: Save cargo trees
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: Cargo Dependency Trees
