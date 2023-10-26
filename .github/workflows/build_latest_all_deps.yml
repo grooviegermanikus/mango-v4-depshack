@@ -1,6 +1,5 @@
 on:
   workflow_dispatch:
-  push:
   schedule:
 #    - cron: '30 7,12 * * MON-FRI'
     - cron: '30 12 * * MON'
