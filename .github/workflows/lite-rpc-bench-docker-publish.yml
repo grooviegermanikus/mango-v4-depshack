@@ -15,8 +15,7 @@ jobs:
       - name: Checkout Lite RPC (branch 'groovie/ping-thing-client')
         uses: actions/checkout@v4
         with:
-          repository: 'grooviegermanikus/lite-rpc'
-          submodules: true
+          repository: 'grooviegermanikus/lite-rpc.git'
           ref: 'groovie/ping-thing-client'
           path: 'lite-rpc'
 
