@@ -10,12 +10,13 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+#    runs-on: ubuntu-22.04
+    runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
       - name: Checkout Lite RPC (branch 'groovie/ping-thing-client')
         uses: actions/checkout@v4
         with:
-          repository: 'grooviegermanikus/lite-rpc.git'
+          repository: 'blockworks-foundation/lite-rpc.git'
           ref: 'groovie/ping-thing-client'
           path: 'lite-rpc'
 
