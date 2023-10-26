@@ -38,7 +38,7 @@ jobs:
       - name: Build and Push Base Image
         uses: docker/build-push-action@v2
         with:
-          file: ./bench-to-flyio/Dockerfile
+          file: ./lite-rpc/bench-to-flyio/Dockerfile
           context: lite-rpc
           push: true
           tags: |
