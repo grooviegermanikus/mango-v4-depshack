@@ -45,6 +45,8 @@ jobs:
           # avoid the default "-D warnings" which thrashes cache
           rustflags: ""
 
+      - uses: rui314/setup-mold@v1
+
       # https://github.com/actions/cache/blob/main/examples.md#rust---cargo
       - name: BuildJet Caching
         uses: buildjet/cache@v3
