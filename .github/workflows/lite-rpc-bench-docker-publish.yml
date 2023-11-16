@@ -3,9 +3,6 @@ name: Publish Docker Image to GHCR
 on:
   push:
   workflow_dispatch:
-  # build a lot of images to see if github containers can handle it
-  schedule:
-    - cron: '40 10-18 * * MON-FRI'
 
 env:
   IMAGE: lite-rpc
