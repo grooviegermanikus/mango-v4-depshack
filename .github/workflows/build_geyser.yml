@@ -66,3 +66,4 @@ jobs:
           name: Cargo Dependency Trees
           path: |
             cargo-tree-*.txt
+
